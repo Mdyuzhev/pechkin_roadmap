@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pe4King — API Test Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:      #0b0c10;
+  --card:    #13151f;
+  --card2:   #1a1d2a;
+  --line:    #252838;
+  --line2:   #3a3e58;
+  --white:   #ffffff;
+  --hi:      #dde1ff;
+  --mid:     #b8bede;
+  --lo:      #8890b8;
+  --blue:    #4dabff;
+  --green:   #35e49a;
+  --yellow:  #ffcc60;
+  --purple:  #c49bff;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--hi);
+  font-size:15px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:44px 44px;opacity:.22;
+}
+.wrap{max-width:1100px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(11,12,16,.94);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;max-width:1100px;margin:0 auto}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--white);letter-spacing:-.5px}
+.logo span{color:var(--blue)}
+.nav-links{display:flex;gap:28px}
+.nav-links a{color:var(--mid);font-size:13px;font-weight:500;text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--white)}
+
+.hero{padding:96px 0 80px;text-align:center}
+.badge{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(77,171,255,.12);border:1px solid rgba(77,171,255,.3);
+  color:var(--blue);font-family:'JetBrains Mono',monospace;
+  font-size:11px;padding:5px 14px;border-radius:99px;margin-bottom:28px;letter-spacing:.5px;
+}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:p 2s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{
+  font-family:'Syne',sans-serif;font-size:clamp(40px,7vw,80px);
+  font-weight:800;letter-spacing:-2px;color:var(--white);line-height:1.05;margin-bottom:20px;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero p{font-size:17px;font-weight:400;color:var(--mid);max-width:560px;margin:0 auto 48px;line-height:1.75}
+.stats{
+  display:flex;border:1px solid var(--line2);border-radius:14px;
+  overflow:hidden;max-width:600px;margin:0 auto;background:var(--card);
+}
+.stat{flex:1;padding:22px 16px;text-align:center;border-right:1px solid var(--line)}
+.stat:last-child{border-right:none}
+.sval{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:var(--white);margin-bottom:5px}
+.sval b{color:var(--blue);font-weight:600}
+.slbl{font-size:11px;color:var(--lo);letter-spacing:.5px;text-transform:uppercase}
+
+section{padding:80px 0}
+.slabel{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--blue);text-transform:uppercase;margin-bottom:10px}
+.stitle{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,42px);font-weight:800;color:var(--white);letter-spacing:-1px;line-height:1.1;margin-bottom:10px}
+.ssub{font-size:16px;color:var(--mid);max-width:520px}
+.shead{margin-bottom:52px}
+
+.fgroup{margin-bottom:52px}
+.fglabel{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:3px;color:var(--lo);text-transform:uppercase;
+  margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line);
+}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.fcard{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:10px;padding:20px 22px;
+  transition:border-color .2s,background .2s;
+  position:relative;overflow:hidden;
+}
+.fcard::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--blue),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.fcard:hover{border-color:var(--line2);background:var(--card2)}
+.fcard:hover::after{opacity:1}
+.fname{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:7px}
+.fdesc{font-size:13.5px;color:var(--mid);line-height:1.6}
+
+.twrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead th{
+  padding:13px 16px;text-align:left;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  color:var(--mid);border-bottom:2px solid var(--line2);
+}
+thead th:first-child{color:var(--white);font-size:14px}
+thead th:not(:first-child){text-align:center;width:140px}
+tbody tr[data-key]{border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s;position:relative}
+tbody tr[data-key]:hover{background:rgba(77,171,255,.07)}
+tbody tr[data-key]:hover td:first-child::after{
+  content:'?';position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(77,171,255,.2);border:1px solid rgba(77,171,255,.4);
+  color:var(--blue);font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;
+}
+tbody td{padding:12px 16px;vertical-align:middle;color:var(--hi);position:relative}
+tbody td:not(:first-child){text-align:center}
+.yes{color:var(--green);font-size:18px}
+.no{color:var(--lo);font-size:18px}
+.par{color:var(--yellow);font-size:13px;font-weight:500}
+.soon{
+  display:inline-block;font-family:'JetBrains Mono',monospace;
+  font-size:10px;padding:2px 9px;border-radius:99px;
+  background:rgba(77,171,255,.13);border:1px solid rgba(77,171,255,.3);
+  color:var(--blue);letter-spacing:.4px;
+}
+.pe4 td:first-child{position:relative;padding-left:22px}
+.pe4 td:first-child::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:55%;border-radius:2px;background:var(--blue);
+}
+.pk{background:rgba(77,171,255,.05)}
+
+/* POPUP */
+.popup-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(11,12,16,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+.popup-overlay.open{display:flex}
+.popup{background:#1a1d2a;border:1px solid #3a3e58;border-radius:16px;padding:32px;max-width:520px;width:100%;position:relative;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:popIn .22s ease}
+@keyframes popIn{from{opacity:0;transform:scale(.93) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.popup-close{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:var(--lo);font-size:20px;line-height:1;transition:color .15s;padding:4px}
+.popup-close:hover{color:var(--white)}
+.popup-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:10px}
+.popup-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--white);margin-bottom:16px;letter-spacing:-.3px}
+.popup-text{font-size:15px;color:var(--mid);line-height:1.75}
+.popup-text p{margin-bottom:10px}
+.popup-text p:last-child{margin-bottom:0}
+.popup-hint{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--lo);font-family:'JetBrains Mono',monospace;letter-spacing:.3px}
+
+/* ROADMAP */
+.rmitem{display:grid;grid-template-columns:176px 1fr;border-bottom:1px solid var(--line)}
+.rmitem:last-child{border-bottom:none}
+.rmmeta{padding:28px 24px 28px 0;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.rmst{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:4px 10px;border-radius:99px;width:fit-content}
+.rmst.on{background:rgba(53,228,154,.12);border:1px solid rgba(53,228,154,.3);color:var(--green)}
+.rmst.pl{background:rgba(77,171,255,.1);border:1px solid rgba(77,171,255,.25);color:var(--blue)}
+.rmcat{font-size:11px;color:var(--lo);letter-spacing:.5px;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.rmbody{padding:28px 0 28px 28px}
+.rmtitle{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;letter-spacing:-.3px}
+.rmdesc{font-size:14px;color:var(--mid);line-height:1.7;max-width:600px}
+.rmtags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.rmtag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid var(--line2);color:var(--lo);letter-spacing:.3px}
+
+/* ── REVIEWS ── */
+.reviews-section{border-top:1px solid var(--line);position:relative;z-index:1}
+.reviews-details{display:block}
+.reviews-summary{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px 32px;max-width:1100px;margin:0 auto;
+  cursor:pointer;list-style:none;
+  transition:background .15s;
+}
+.reviews-summary::-webkit-details-marker{display:none}
+.reviews-summary:hover{background:rgba(255,255,255,.02)}
+.reviews-summary-left{display:flex;align-items:center;gap:14px}
+.reviews-summary-title{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:18px;
+  color:var(--white);letter-spacing:-.3px;
+}
+.reviews-count{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  background:rgba(77,171,255,.12);border:1px solid rgba(77,171,255,.25);
+  color:var(--blue);padding:2px 10px;border-radius:99px;
+}
+.reviews-avg{display:flex;align-items:center;gap:5px}
+.reviews-avg-stars{color:var(--yellow);font-size:14px;letter-spacing:1px}
+.reviews-avg-num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--lo)}
+.reviews-arrow{
+  color:var(--lo);font-size:18px;
+  transition:transform .25s;
+  font-family:'JetBrains Mono',monospace;
+}
+details[open] .reviews-arrow{transform:rotate(180deg)}
+
+.reviews-body{
+  border-top:1px solid var(--line);
+  padding:40px 32px 48px;
+  max-width:1100px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 380px;gap:48px;
+}
+
+/* Review list */
+.reviews-list{display:flex;flex-direction:column;gap:16px;min-height:60px}
+.reviews-empty{
+  color:var(--lo);font-size:14px;font-family:'JetBrains Mono',monospace;
+  letter-spacing:.3px;padding:20px 0;
+}
+.review-card{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:20px 22px;
+  animation:slideIn .3s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.review-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:12px}
+.review-author{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:14px;
+  color:var(--white);
+}
+.review-meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.review-stars{color:var(--yellow);font-size:13px;letter-spacing:1px}
+.review-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--lo);letter-spacing:.3px}
+.review-text{font-size:14px;color:var(--mid);line-height:1.65}
+
+/* Review form */
+.reviews-form-wrap{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:24px;height:fit-content;
+  position:sticky;top:80px;
+}
+.reviews-form-label{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:2px;color:var(--blue);text-transform:uppercase;
+  margin-bottom:18px;display:block;
+}
+.rv-field{margin-bottom:14px}
+.rv-field label{display:block;font-size:12px;color:var(--lo);margin-bottom:6px;font-family:'JetBrains Mono',monospace;letter-spacing:.3px}
+.rv-input{
+  width:100%;background:var(--bg);border:1px solid var(--line2);
+  color:var(--hi);border-radius:8px;padding:10px 12px;font-size:14px;
+  font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;
+}
+.rv-input:focus{border-color:var(--blue)}
+.rv-input::placeholder{color:var(--lo)}
+textarea.rv-input{resize:vertical;min-height:100px;line-height:1.6}
+
+/* Stars picker */
+.star-picker{display:flex;gap:4px;margin-top:2px}
+.star-picker span{
+  font-size:22px;cursor:pointer;
+  color:var(--line2);
+  transition:color .15s, transform .1s;
+  line-height:1;
+}
+.star-picker span:hover{transform:scale(1.2)}
+.star-picker span.active{color:var(--yellow)}
+
+.rv-submit{
+  width:100%;padding:11px;border-radius:8px;border:none;cursor:pointer;
+  background:var(--blue);color:var(--bg);
+  font-family:'Syne',sans-serif;font-weight:700;font-size:14px;
+  transition:opacity .2s, transform .1s;margin-top:4px;
+}
+.rv-submit:hover{opacity:.88}
+.rv-submit:active{transform:scale(.98)}
+.rv-submit:disabled{opacity:.4;cursor:not-allowed}
+.rv-notice{
+  margin-top:10px;font-size:11px;color:var(--lo);
+  font-family:'JetBrains Mono',monospace;letter-spacing:.2px;
+  line-height:1.5;
+}
+.rv-success{
+  display:none;text-align:center;padding:16px;
+  color:var(--green);font-size:14px;font-weight:500;
+}
+
+.div{height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent)}
+
+footer{
+  border-top:1px solid var(--line);padding:32px;
+  text-align:center;color:var(--lo);
+  font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;
+}
+.fi{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.fi.vis{opacity:1;transform:none}
+
+@media(max-width:860px){
+  .reviews-body{grid-template-columns:1fr}
+  .reviews-form-wrap{position:static}
+}
+@media(max-width:680px){
+  .rmitem{grid-template-columns:1fr}
+  .rmmeta{border-right:none;border-bottom:1px solid var(--line);padding-bottom:16px}
+  .rmbody{padding:20px 0 0}
+  .nav-links{display:none}
+  .stats{flex-direction:column}
+  .stat{border-right:none;border-bottom:1px solid var(--line)}
+  .stat:last-child{border-bottom:none}
+  .reviews-summary{padding:20px 16px}
+  .reviews-body{padding:24px 16px 36px}
+}
+</style>
+</head>
+<body>
+
+<!-- POPUP -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup" id="popup">
+    <button class="popup-close" id="popupClose">✕</button>
+    <div class="popup-tag" id="popupTag">Функция</div>
+    <div class="popup-title" id="popupTitle"></div>
+    <div class="popup-text" id="popupText"></div>
+    <div class="popup-hint">Нажмите Esc или кликните за пределами окна чтобы закрыть</div>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Pe4<span>King</span></div>
+    <div class="nav-links">
+      <a href="#features">Функции</a>
+      <a href="#compare">Сравнение</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#reviews">Отзывы</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="badge"><span class="dot"></span>API Test Generator · v1.0.87</div>
+    <h1>Генерация тестов из<br/><em>OpenAPI-спецификации</em></h1>
+    <p>Детерминированный генератор скелетных API-тестов. Schema-aware assertions, негативные сценарии, анализ качества тестов. Встроен в VS Code, IntelliJ IDEA и доступен как Desktop-приложение.</p>
+    <div class="stats">
+      <div class="stat"><div class="sval">9<b>K</b></div><div class="slbl">тестов / сек</div></div>
+      <div class="stat"><div class="sval"><b>3</b></div><div class="slbl">платформы</div></div>
+      <div class="stat"><div class="sval"><b>3</b></div><div class="slbl">формата вывода</div></div>
+      <div class="stat"><div class="sval">L<b>0–6</b></div><div class="slbl">Oracle Depth</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<section id="features">
+  <div class="wrap">
+    <div class="shead fi">
+      <div class="slabel">Возможности</div>
+      <div class="stitle">Всё что нужно<br/>QA-инженеру</div>
+      <div class="ssub">От разбора OpenAPI-спецификации до готовых тестов с assertions — без ручного кодирования.</div>
+    </div>
+    <div class="fgroup fi">
+      <div class="fglabel">Генерация тестов</div>
+      <div class="fgrid">
+        <div class="fcard"><div class="fname">OpenAPI Parser</div><div class="fdesc">Разбор спецификаций OpenAPI 3.x и Swagger 2.0 в форматах JSON и YAML</div></div>
+        <div class="fcard"><div class="fname">Schema-Aware Assertions</div><div class="fdesc">Автовыбор типа проверки по типу поля, формату (uuid, email, date-time), enum-значениям и числовым ограничениям</div></div>
+        <div class="fcard"><div class="fname">Позитивные тесты</div><div class="fdesc">Генерация happy-path тестов с корректными данными запроса для каждого эндпоинта</div></div>
+        <div class="fcard"><div class="fname">Негативные тесты</div><div class="fdesc">Автогенерация на нарушение ограничений: enum, min/max, minLength/maxLength, неверный тип, 401/404</div></div>
+        <div class="fcard"><div class="fname">Вывод в pytest</div><div class="fdesc">Python-тесты с requests, поддержка функций и классов</div></div>
+        <div class="fcard"><div class="fname">Вывод в REST Assured</div><div class="fdesc">Java-тесты с JUnit 5 и Hamcrest-матчерами</div></div>
+        <div class="fcard"><div class="fname">Вывод в Postman</div><div class="fdesc">Postman Collection v2.1 с pm.test() скриптами и переменными окружения</div></div>
+        <div class="fcard"><div class="fname">Выборочная генерация</div><div class="fdesc">Выбор эндпоинтов через дерево с чекбоксами и быстрый выбор всех сразу</div></div>
+        <div class="fcard"><div class="fname">Загрузка по URL</div><div class="fdesc">Загрузка спека по ссылке с авторизацией и авто-обнаружением пути (Swagger UI, /v3/api-docs)</div></div>
+        <div class="fcard"><div class="fname">ZIP-архив</div><div class="fdesc">Автоматическая упаковка всех сгенерированных файлов в ZIP</div></div>
+        <div class="fcard"><div class="fname">Производительность</div><div class="fdesc">9 000 тестов в секунду — генерация большой спецификации мгновенно</div></div>
+      </div>
+    </div>
+    <div class="fgroup fi">
+      <div class="fglabel">HTTP Клиент</div>
+      <div class="fgrid">
+        <div class="fcard"><div class="fname">Отправка запросов</div><div class="fdesc">Полный HTTP-клиент: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS</div></div>
+        <div class="fcard"><div class="fname">Параметры запроса</div><div class="fdesc">Редактирование path params, query params, заголовков и тела в табличном виде</div></div>
+        <div class="fcard"><div class="fname">Просмотр ответа</div><div class="fdesc">Pretty (JSON с подсветкой), Raw, Headers — с временем и размером ответа</div></div>
+        <div class="fcard"><div class="fname">Pre-request скрипты</div><div class="fdesc">JavaScript-код до отправки запроса — для подготовки данных и токенов</div></div>
+        <div class="fcard"><div class="fname">Test-скрипты</div><div class="fdesc">JavaScript после ответа: test(name, cond) и полный pm.test / pm.expect API</div></div>
+        <div class="fcard"><div class="fname">QuickJS движок</div><div class="fdesc">Встроенный JS-движок в Desktop — без Python и Node.js</div></div>
+      </div>
+    </div>
+    <div class="fgroup fi">
+      <div class="fglabel">Коллекции и переменные</div>
+      <div class="fgrid">
+        <div class="fcard"><div class="fname">Коллекции запросов</div><div class="fdesc">Создание, редактирование и организация сохранённых HTTP-запросов</div></div>
+        <div class="fcard"><div class="fname">Переменные коллекции</div><div class="fdesc">{{baseUrl}}, {{token}} и любые другие с областью видимости коллекции</div></div>
+        <div class="fcard"><div class="fname">Глобальные переменные</div><div class="fdesc">Переменные доступные одновременно во всех коллекциях</div></div>
+        <div class="fcard"><div class="fname">JSONPath-извлечение</div><div class="fdesc">Извлечение $.data.id из ответа и сохранение в переменные для цепочек запросов</div></div>
+        <div class="fcard"><div class="fname">Библиотека сниппетов</div><div class="fdesc">Готовые JS-сниппеты для типовых проверок — вставка одним кликом</div></div>
+        <div class="fcard"><div class="fname">Экспорт коллекций</div><div class="fdesc">Конвертация коллекции в готовый pytest или REST Assured файл</div></div>
+      </div>
+    </div>
+    <div class="fgroup fi">
+      <div class="fglabel">Collection Runner</div>
+      <div class="fgrid">
+        <div class="fcard"><div class="fname">Последовательный запуск</div><div class="fdesc">Выполнение всех запросов коллекции по порядку в автоматическом режиме</div></div>
+        <div class="fcard"><div class="fname">Прогресс и результаты</div><div class="fdesc">Прогресс-бар и таблица: метод, статус, время, pass/fail по каждому запросу</div></div>
+        <div class="fcard"><div class="fname">Передача переменных</div><div class="fdesc">Значения из JSONPath в одном запросе доступны в следующих — цепочки</div></div>
+      </div>
+    </div>
+    <div class="fgroup fi">
+      <div class="fglabel">EVA — Анализ качества тестов</div>
+      <div class="fgrid">
+        <div class="fcard"><div class="fname">Oracle Depth L0–L6</div><div class="fdesc">Шкала глубины проверок: от «нет assertions» (L0) до «бизнес-логика» (L6)</div></div>
+        <div class="fcard"><div class="fname">Грейд качества S–F</div><div class="fdesc">Итоговая оценка набора тестов: S (90+), A, B, C, D, F</div></div>
+        <div class="fcard"><div class="fname">Анализ файла / папки</div><div class="fdesc">Разбор .py или .java файла или целой папки с агрегированным результатом</div></div>
+        <div class="fcard"><div class="fname">Детектирование anti-patterns</div><div class="fdesc">Thread.sleep, пустые catch-блоки, захардкоженные credentials, copy-paste тесты</div></div>
+        <div class="fcard"><div class="fname">Рекомендации</div><div class="fdesc">Конкретные советы по улучшению assertions на основе найденных проблем</div></div>
+        <div class="fcard"><div class="fname">Статический анализ</div><div class="fdesc">Анализ без запуска тестов — только по исходному коду</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="compare">
+  <div class="wrap">
+    <div class="shead fi">
+      <div class="slabel">Сравнение</div>
+      <div class="stitle">Pe4King vs Postman</div>
+      <div class="ssub" style="margin-bottom:8px">Pe4King генерирует тесты, Postman выполняет запросы. Вместе или вместо.</div>
+      <div style="font-size:12px;color:var(--lo);font-family:'JetBrains Mono',monospace;letter-spacing:.3px;margin-top:4px">↖ Нажмите на строку чтобы узнать подробнее</div>
+    </div>
+    <div class="twrap fi">
+      <table>
+        <thead><tr><th>Функция</th><th>Pe4King</th><th>Postman</th></tr></thead>
+        <tbody>
+          <tr class="pe4" data-key="gen-openapi"><td>Генерация тестов из OpenAPI</td><td class="pk"><span class="yes">✓</span> Ключевая функция</td><td><span class="par">Базовая, без assertions</span></td></tr>
+          <tr class="pe4" data-key="schema-assertions"><td>Schema-aware assertions</td><td class="pk"><span class="yes">✓</span> Тип, формат, enum, constraints</td><td><span class="no">✗</span></td></tr>
+          <tr class="pe4" data-key="negative-tests"><td>Негативные тесты (авто)</td><td class="pk"><span class="yes">✓</span> Из schema constraints</td><td><span class="no">✗</span></td></tr>
+          <tr class="pe4" data-key="pytest"><td>Вывод pytest (Python)</td><td class="pk"><span class="yes">✓</span></td><td><span class="no">✗</span></td></tr>
+          <tr class="pe4" data-key="rest-assured"><td>Вывод REST Assured (Java)</td><td class="pk"><span class="yes">✓</span></td><td><span class="no">✗</span></td></tr>
+          <tr data-key="postman-collection"><td>Вывод Postman Collection</td><td class="pk"><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr class="pe4" data-key="eva"><td>EVA / анализ качества тестов</td><td class="pk"><span class="yes">✓</span> Oracle Depth L0–L6</td><td><span class="no">✗</span></td></tr>
+          <tr class="pe4" data-key="ide"><td>Встроен в IDE</td><td class="pk"><span class="yes">✓</span> VS Code + IntelliJ</td><td><span class="no">✗</span></td></tr>
+          <tr data-key="http-client"><td>HTTP клиент</td><td class="pk"><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr data-key="collections"><td>Коллекции запросов</td><td class="pk"><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr data-key="variables"><td>Переменные окружения</td><td class="pk"><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr data-key="scripts"><td>Pre-request / Test скрипты</td><td class="pk"><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr data-key="runner"><td>Collection Runner</td><td class="pk"><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr data-key="jsonpath"><td>JSONPath извлечение</td><td class="pk"><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+          <tr class="pe4" data-key="swagger-detect"><td>Swagger UI авто-обнаружение</td><td class="pk"><span class="yes">✓</span></td><td><span class="par">Ручной импорт</span></td></tr>
+          <tr class="pe4" data-key="zip"><td>ZIP-экспорт тестов</td><td class="pk"><span class="yes">✓</span></td><td><span class="no">✗</span></td></tr>
+          <tr class="pe4" data-key="offline"><td>Работа без интернета</td><td class="pk"><span class="yes">✓</span> Полностью offline</td><td><span class="par">Требует аккаунт</span></td></tr>
+          <tr class="pe4" data-key="free"><td>Бесплатно</td><td class="pk"><span class="yes">✓</span></td><td><span class="par">Freemium</span></td></tr>
+          <tr data-key="teamwork"><td>Командная работа / Cloud sync</td><td class="pk"><span class="soon">ROADMAP</span></td><td><span class="yes">✓</span></td></tr>
+          <tr data-key="mock"><td>Mock-серверы</td><td class="pk"><span class="soon">ROADMAP</span></td><td><span class="yes">✓</span></td></tr>
+          <tr data-key="desktop"><td>Desktop-приложение</td><td class="pk"><span class="yes">✓</span> Windows</td><td><span class="yes">✓</span> Win/Mac/Linux</td></tr>
+          <tr data-key="mac-linux"><td>Mac / Linux</td><td class="pk"><span class="yes">✓</span> Extension + Plugin кроссплатформенные &nbsp;<span class="soon">ROADMAP</span> Desktop</td><td><span class="yes">✓</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="roadmap">
+  <div class="wrap">
+    <div class="shead fi">
+      <div class="slabel">Roadmap</div>
+      <div class="stitle">Что будет дальше</div>
+      <div class="ssub">Направления развития Pe4King — от нагрузочного тестирования до корпоративных интеграций.</div>
+    </div>
+    <div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst on">В работе</div><div class="rmcat">Отчётность</div></div><div class="rmbody"><div class="rmtitle">Allure-подобный отчёт о тестировании</div><div class="rmdesc">HTML-отчёт по результатам Collection Runner: сводная статистика, детализация по каждому запросу, тренды по времени, экспорт в PDF. Совместимость с Allure TestOps.</div><div class="rmtags"><span class="rmtag">HTML report</span><span class="rmtag">PDF export</span><span class="rmtag">Allure TestOps</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">Интеграции</div></div><div class="rmbody"><div class="rmtitle">Интеграция с TestIT</div><div class="rmdesc">Двусторонняя синхронизация: экспорт тест-кейсов в TestIT с маппингом на тест-планы, импорт результатов прогона, привязка API-тестов к ручным тест-кейсам.</div><div class="rmtags"><span class="rmtag">TestIT</span><span class="rmtag">TMS</span><span class="rmtag">двусторонняя синхронизация</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">Генерация</div></div><div class="rmbody"><div class="rmtitle">Мануальные тестовые сценарии</div><div class="rmdesc">Генерация описаний тест-кейсов для ручного тестирования на основе OpenAPI: шаги, ожидаемые результаты, предусловия. Экспорт в TestIT, Confluence, Markdown.</div><div class="rmtags"><span class="rmtag">test cases</span><span class="rmtag">manual QA</span><span class="rmtag">Confluence</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">Нагрузочное</div></div><div class="rmbody"><div class="rmtitle">Нагрузочное тестирование</div><div class="rmdesc">Генерация сценариев из OpenAPI: k6 (JavaScript), Gatling (Scala/Java), Apache JMeter (XML). Ramp-up сценарии, виртуальные пользователи, assertions на время ответа.</div><div class="rmtags"><span class="rmtag">k6</span><span class="rmtag">Gatling</span><span class="rmtag">JMeter</span><span class="rmtag">performance</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">CI/CD</div></div><div class="rmbody"><div class="rmtitle">Встраивание в CI/CD</div><div class="rmdesc">Готовые шаблоны пайплайнов для автоматической генерации и запуска тестов при изменении OpenAPI-спецификации. GitLab CI, GitHub Actions, Jenkins. CLI без GUI.</div><div class="rmtags"><span class="rmtag">GitLab CI</span><span class="rmtag">GitHub Actions</span><span class="rmtag">Jenkins</span><span class="rmtag">CLI</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">Git-платформы</div></div><div class="rmbody"><div class="rmtitle">Интеграция с репозиториями</div><div class="rmdesc">GitLab: EVA-отчёт комментарием в merge request. GitHub: Action при изменении OpenAPI. Gitflic: аналогичная интеграция для российской платформы.</div><div class="rmtags"><span class="rmtag">GitLab</span><span class="rmtag">GitHub</span><span class="rmtag">Gitflic</span><span class="rmtag">MR review</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">Командная работа</div></div><div class="rmbody"><div class="rmtitle">Командная работа / Cloud Sync</div><div class="rmdesc">Синхронизация коллекций, переменных и настроек через Git-репозиторий или облако. Разграничение доступа, история изменений. Self-hosted вариант для корпоративных сред.</div><div class="rmtags"><span class="rmtag">shared workspace</span><span class="rmtag">self-hosted</span><span class="rmtag">Git sync</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">Инфраструктура</div></div><div class="rmbody"><div class="rmtitle">Mock-серверы</div><div class="rmdesc">Создание mock-сервера на основе OpenAPI для разработки без реального бэкенда. Статические и динамические ответы, задержки, сценарии ошибок. Локально или в Docker.</div><div class="rmtags"><span class="rmtag">mock server</span><span class="rmtag">Docker</span><span class="rmtag">offline dev</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">AI</div></div><div class="rmbody"><div class="rmtitle">Интеграция с Василисой</div><div class="rmdesc">Использование корпоративной AI-платформы для обогащения тестов: точные тестовые данные, описания тест-кейсов и рекомендации на основе бизнес-контекста.</div><div class="rmtags"><span class="rmtag">Василиса</span><span class="rmtag">AI-ассистент</span><span class="rmtag">LLM</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">AI</div></div><div class="rmbody"><div class="rmtitle">Интеграция с Ягой</div><div class="rmdesc">Синхронизация тест-кейсов с платформой Яга, передача результатов прогонов, трассировка покрытия требований тестами.</div><div class="rmtags"><span class="rmtag">Яга</span><span class="rmtag">QA automation</span><span class="rmtag">трассировка</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">Платформы</div></div><div class="rmbody"><div class="rmtitle">Mac / Linux — Desktop-приложение</div><div class="rmdesc">VS Code Extension и IntelliJ Plugin уже кроссплатформенные. Следующий шаг — Desktop для macOS (DMG) и Linux (AppImage, .deb). Приоритет: macOS Apple Silicon.</div><div class="rmtags"><span class="rmtag">macOS</span><span class="rmtag">Linux</span><span class="rmtag">Apple Silicon</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">Совместимость</div></div><div class="rmbody"><div class="rmtitle">Расширение совместимости с Postman</div><div class="rmdesc">Реализация недостающих возможностей: environments с быстрым переключением, история запросов, cookies-менеджер, документация коллекций.</div><div class="rmtags"><span class="rmtag">environments</span><span class="rmtag">history</span><span class="rmtag">cookies</span></div></div></div>
+      <div class="rmitem fi"><div class="rmmeta"><div class="rmst pl">Запланировано</div><div class="rmcat">Расширяемость</div></div><div class="rmbody"><div class="rmtitle">Система расширений</div><div class="rmdesc">Открытый API для плагинов: новые форматы вывода (Karate DSL, Cypress, Playwright, Robot Framework), кастомные assertion-маперы, интеграции с внутренними системами.</div><div class="rmtags"><span class="rmtag">Karate DSL</span><span class="rmtag">Playwright</span><span class="rmtag">Cypress</span><span class="rmtag">plugins API</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── REVIEWS ── -->
+<div class="div"></div>
+<div class="reviews-section" id="reviews">
+  <details class="reviews-details" id="reviewsDetails">
+    <summary class="reviews-summary">
+      <div class="reviews-summary-left">
+        <span class="reviews-summary-title">Отзывы</span>
+        <span class="reviews-count" id="reviewCount">0</span>
+        <div class="reviews-avg" id="reviewsAvg" style="display:none">
+          <span class="reviews-avg-stars" id="avgStars"></span>
+          <span class="reviews-avg-num" id="avgNum"></span>
+        </div>
+      </div>
+      <span class="reviews-arrow">▾</span>
+    </summary>
+    <div class="reviews-body">
+      <!-- List -->
+      <div>
+        <div class="reviews-list" id="reviewsList">
+          <div class="reviews-empty" id="reviewsEmpty">Отзывов пока нет. Будьте первым!</div>
+        </div>
+      </div>
+      <!-- Form -->
+      <div class="reviews-form-wrap">
+        <span class="reviews-form-label">Оставить отзыв</span>
+        <div class="rv-field">
+          <label for="rvName">Имя <span style="color:var(--lo)">(необязательно)</span></label>
+          <input class="rv-input" type="text" id="rvName" placeholder="Тестировщик" maxlength="60" autocomplete="off"/>
+        </div>
+        <div class="rv-field">
+          <label>Оценка</label>
+          <div class="star-picker" id="starPicker">
+            <span data-v="1">★</span>
+            <span data-v="2">★</span>
+            <span data-v="3">★</span>
+            <span data-v="4">★</span>
+            <span data-v="5">★</span>
+          </div>
+        </div>
+        <div class="rv-field">
+          <label for="rvText">Отзыв</label>
+          <textarea class="rv-input" id="rvText" placeholder="Расскажите о вашем опыте работы с Pe4King..." maxlength="1000"></textarea>
+        </div>
+        <button class="rv-submit" id="rvSubmit" disabled>Отправить отзыв</button>
+        <div class="rv-success" id="rvSuccess">✓ Отзыв добавлен, спасибо!</div>
+        <div class="rv-notice">Отзывы сохраняются в этом браузере. Редактирование после отправки недоступно.</div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<footer>Pe4King · API Test Generator · v1.0.87 · 2026</footer>
+
+<script>
+// ── Scroll animations ────────────────────────────────────────────────────
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)} });
+},{threshold:0.07});
+document.querySelectorAll('.fi').forEach(el => obs.observe(el));
+
+// ── REVIEWS ─────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'pe4king_reviews_v1';
+
+function loadReviews() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveReviews(reviews) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
+}
+
+function starsHtml(n) {
+  return '★'.repeat(n) + '☆'.repeat(5 - n);
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
+}
+
+function renderReviews() {
+  const reviews = loadReviews();
+  const list = document.getElementById('reviewsList');
+  const empty = document.getElementById('reviewsEmpty');
+  const countEl = document.getElementById('reviewCount');
+  const avgWrap = document.getElementById('reviewsAvg');
+  const avgStars = document.getElementById('avgStars');
+  const avgNum = document.getElementById('avgNum');
+
+  countEl.textContent = reviews.length;
+
+  if (reviews.length === 0) {
+    empty.style.display = '';
+    avgWrap.style.display = 'none';
+    // Remove old cards
+    list.querySelectorAll('.review-card').forEach(el => el.remove());
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  // Avg rating
+  const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
+  avgStars.textContent = starsHtml(Math.round(avg));
+  avgNum.textContent = avg.toFixed(1);
+  avgWrap.style.display = 'flex';
+
+  // Clear and re-render (newest first)
+  list.querySelectorAll('.review-card').forEach(el => el.remove());
+  const sorted = [...reviews].reverse();
+  sorted.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'review-card';
+    card.innerHTML = `
+      <div class="review-header">
+        <div class="review-author">${escHtml(r.name)}</div>
+        <div class="review-meta">
+          <div class="review-stars">${starsHtml(r.rating)}</div>
+          <div class="review-date">${formatDate(r.date)}</div>
+        </div>
+      </div>
+      <div class="review-text">${escHtml(r.text)}</div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/\n/g,'<br>');
+}
+
+// Stars picker
+let selectedRating = 0;
+const stars = document.querySelectorAll('#starPicker span');
+
+stars.forEach(s => {
+  s.addEventListener('mouseenter', () => {
+    const v = +s.dataset.v;
+    stars.forEach(st => st.classList.toggle('active', +st.dataset.v <= v));
+  });
+  s.addEventListener('click', () => {
+    selectedRating = +s.dataset.v;
+    stars.forEach(st => st.classList.toggle('active', +st.dataset.v <= selectedRating));
+    updateSubmit();
+  });
+});
+document.getElementById('starPicker').addEventListener('mouseleave', () => {
+  stars.forEach(st => st.classList.toggle('active', +st.dataset.v <= selectedRating));
+});
+
+const rvText = document.getElementById('rvText');
+rvText.addEventListener('input', updateSubmit);
+
+function updateSubmit() {
+  const ok = selectedRating > 0 && rvText.value.trim().length >= 3;
+  document.getElementById('rvSubmit').disabled = !ok;
+}
+
+document.getElementById('rvSubmit').addEventListener('click', () => {
+  const name = document.getElementById('rvName').value.trim() || 'Тестировщик';
+  const text = rvText.value.trim();
+  if (!text || selectedRating === 0) return;
+
+  const review = {
+    id: Date.now().toString(),
+    name,
+    rating: selectedRating,
+    text,
+    date: new Date().toISOString()
+  };
+
+  const reviews = loadReviews();
+  reviews.push(review);
+  saveReviews(reviews);
+  renderReviews();
+
+  // Reset form
+  document.getElementById('rvName').value = '';
+  rvText.value = '';
+  selectedRating = 0;
+  stars.forEach(s => s.classList.remove('active'));
+  updateSubmit();
+
+  // Show success
+  const succ = document.getElementById('rvSuccess');
+  succ.style.display = 'block';
+  setTimeout(() => succ.style.display = 'none', 3000);
+
+  // Open details if closed and scroll to list
+  document.getElementById('reviewsDetails').open = true;
+});
+
+// Initial render
+renderReviews();
+
+// ── Row explanations ─────────────────────────────────────────────────────
+const explanations = {
+  'gen-openapi':{ title:'Генерация тестов из OpenAPI', text:`<p>Вы загружаете файл с описанием вашего API (OpenAPI или Swagger), а Pe4King сам пишет готовые тесты для каждого эндпоинта — вам не нужно ничего делать вручную.</p><p>Postman тоже умеет импортировать OpenAPI, но создаёт только заготовки запросов без каких-либо проверок: он не знает что именно нужно проверять в ответе.</p><p>Pe4King читает структуру схемы — типы полей, форматы, ограничения — и сразу генерирует тесты с осмысленными assertions, готовые к запуску.</p>`},
+  'schema-assertions':{ title:'Schema-aware assertions', text:`<p>Assertion — это проверка, которая подтверждает что ответ сервера правильный. Например: «поле id не пустое» или «статус 200».</p><p>Pe4King смотрит на тип каждого поля в схеме и сам выбирает подходящую проверку: для email добавит проверку наличия «@», для UUID — проверку формата, для числа — что значение в допустимых пределах.</p><p>Postman при импорте OpenAPI вообще не добавляет assertions — тестировщик должен прописывать все проверки вручную.</p>`},
+  'negative-tests':{ title:'Негативные тесты (авто)', text:`<p>Негативные тесты проверяют как система реагирует на некорректные данные — правильно ли она отклоняет их с ошибкой, а не падает или возвращает непредсказуемый результат.</p><p>Pe4King смотрит в описание API: если поле имеет минимальное значение 1, инструмент автоматически создаёт тест с значением 0 и проверяет что сервер вернул ошибку 400.</p><p>Postman такие тесты не генерирует вообще — их нужно создавать полностью вручную, что занимает много времени и часто пропускается.</p>`},
+  'pytest':{ title:'Вывод в pytest (Python)', text:`<p>pytest — самый популярный фреймворк для тестирования на Python, используется в большинстве Python-проектов.</p><p>Pe4King генерирует готовые .py файлы которые можно запустить командой pytest прямо из терминала — никаких дополнительных настроек не нужно.</p><p>Это стандартный выбор для команд которые пишут на Python или уже используют pytest для других видов тестирования в проекте.</p>`},
+  'rest-assured':{ title:'Вывод REST Assured (Java)', text:`<p>REST Assured — библиотека для тестирования API на Java, де-факто стандарт в Java-проектах, особенно в enterprise-разработке.</p><p>Pe4King генерирует Java-классы с JUnit 5 тестами и Hamcrest-матчерами, которые можно сразу добавить в Maven или Gradle проект без дополнительной настройки.</p><p>Это правильный выбор если ваша команда работает на Java или Kotlin, или если нужно интегрировать API-тесты в существующий Java-проект.</p>`},
+  'postman-collection':{ title:'Вывод в Postman Collection', text:`<p>Postman Collection — это JSON-файл со всеми запросами, тестами и переменными, который открывается в Postman или запускается через Newman в командной строке.</p><p>Pe4King генерирует такой файл с уже написанными тест-скриптами на JavaScript — не просто заготовки запросов, а полноценные проверки ответов.</p><p>Готовый файл можно импортировать в Postman одним кликом или запустить в CI/CD через Newman без установки Postman.</p>`},
+  'eva':{ title:'EVA — анализ качества тестов', text:`<p>EVA оценивает насколько хорошо написаны ваши тесты — без их запуска, просто анализируя исходный код.</p><p>Инструмент определяет «глубину» проверок по шкале от L0 (тесты есть, но они ничего не проверяют) до L6 (тесты проверяют бизнес-логику и форматы данных).</p><p>По итогу вы получаете оценку как в школе — S, A, B, C, D или F — и конкретные рекомендации что улучшить. В Postman такого инструмента нет.</p>`},
+  'ide':{ title:'Встроен в IDE', text:`<p>Pe4King работает прямо внутри вашего редактора — VS Code или IntelliJ IDEA — в виде боковой панели.</p><p>Не нужно переключаться между окнами: открыли файл спецификации, нажали кнопку в панели Pe4King — получили готовые тесты, не выходя из редактора.</p><p>Postman — это отдельное приложение, никак не интегрированное с IDE, поэтому при работе нужно постоянно переключаться между окнами.</p>`},
+  'http-client':{ title:'HTTP клиент', text:`<p>Встроенный HTTP-клиент позволяет отправлять запросы к API прямо из Pe4King — точно так же как в Postman, но не выходя из IDE.</p><p>Вы видите ответ сервера, заголовки, время выполнения и размер ответа. Запросы можно сохранять в коллекции для повторного использования.</p><p>Это удобно для быстрой проверки что API отвечает корректно перед тем как генерировать тесты или сохранять запрос в коллекцию.</p>`},
+  'collections':{ title:'Коллекции запросов', text:`<p>Коллекции — это папки с сохранёнными HTTP-запросами, похожие на закладки в браузере, только для API.</p><p>Вы сохраняете часто используемые запросы и можете запускать их в один клик, не вбивая URL и параметры каждый раз заново.</p><p>Запросы можно группировать по проектам, командам или функциям API, а также экспортировать в pytest или REST Assured файлы для автоматизации.</p>`},
+  'variables':{ title:'Переменные окружения', text:`<p>Переменные позволяют хранить значения которые часто меняются — адрес сервера, токен авторизации, ID тестового пользователя.</p><p>Вместо того чтобы вписывать https://api.example.com в каждый запрос, вы пишете {{baseUrl}} и задаёте значение один раз. Чтобы переключиться с тестового сервера на production — достаточно поменять одну переменную.</p><p>Переменные могут быть глобальными (для всех коллекций) или привязанными к конкретной коллекции.</p>`},
+  'scripts':{ title:'Pre-request и Test скрипты', text:`<p>Pre-request скрипт — это JavaScript-код который выполняется до отправки запроса: например для получения свежего токена авторизации или генерации случайных данных.</p><p>Test-скрипт выполняется после получения ответа и содержит проверки: правильный ли статус, нужные ли поля в ответе, корректный ли формат данных.</p><p>Оба типа скриптов дают полный программный контроль — вы можете делать всё что угодно: вычисления, условия, сохранение переменных из ответа.</p>`},
+  'runner':{ title:'Collection Runner', text:`<p>Collection Runner запускает все запросы из коллекции автоматически, один за другим — как конвейер на заводе.</p><p>Он передаёт данные между запросами: например сохраняет ID пользователя из ответа на запрос создания, и использует его в следующем запросе для получения деталей.</p><p>В конце вы видите сводную таблицу: какие тесты прошли, какие упали, сколько времени занял каждый запрос — без ручного запуска каждого запроса по отдельности.</p>`},
+  'jsonpath':{ title:'JSONPath извлечение', text:`<p>JSONPath — это язык запросов к JSON-данным, похожий на обращение к массивам в коде. Например $.data.users[0].id извлечёт ID первого пользователя из ответа.</p><p>Pe4King использует JSONPath чтобы вытащить нужные значения из ответа сервера и автоматически сохранить их как переменные для использования в следующих запросах.</p><p>Это основа для «цепочек» запросов: создал запись — получил её ID — использовал ID в следующем запросе для обновления или удаления.</p>`},
+  'swagger-detect':{ title:'Swagger UI авто-обнаружение', text:`<p>Многие серверы автоматически публикуют страницу с документацией API (Swagger UI). Pe4King умеет найти файл спецификации автоматически, даже если вы указали только главный адрес сервера.</p><p>Инструмент перебирает стандартные пути (/api/swagger.json, /v3/api-docs, /openapi.yaml и т.д.) и сам находит спецификацию без вашего участия.</p><p>В Postman нужно самому найти прямую ссылку на JSON-файл спецификации и вставить её вручную — иначе импорт не сработает.</p>`},
+  'zip':{ title:'ZIP-экспорт тестов', text:`<p>Когда Pe4King генерирует тесты, их может быть несколько файлов: основной тест-файл, конфигурация, вспомогательные модули.</p><p>Все файлы автоматически упаковываются в ZIP-архив — вы скачиваете один файл, распаковываете в нужную папку и тесты сразу готовы к запуску.</p><p>В Postman нет механизма экспорта тестов в форматы pytest или REST Assured — только экспорт коллекции в собственном формате JSON.</p>`},
+  'offline':{ title:'Работа без интернета', text:`<p>Pe4King работает полностью локально на вашей машине — он не отправляет данные на внешние серверы и не требует подключения к интернету для основных функций.</p><p>Это критично для корпоративных сред где API-спецификации содержат конфиденциальную бизнес-логику — данные не покидают вашу сеть.</p><p>Postman требует аккаунт и синхронизирует коллекции через облако Postman Inc. Без аккаунта функциональность существенно ограничена.</p>`},
+  'free':{ title:'Бесплатность', text:`<p>Pe4King полностью бесплатен без скрытых ограничений — нет лимитов на количество запросов, коллекций, пользователей или проектов.</p><p>Нет подписки, нет «бесплатного плана с ограничениями» — просто установил и пользуешься всем функционалом.</p><p>Postman бесплатен для базового использования, но командные функции, история запросов, Mock-серверы и другие возможности требуют платной подписки.</p>`},
+  'teamwork':{ title:'Командная работа / Cloud sync', text:`<p>Это возможность работать над одними и теми же коллекциями и настройками вместе с командой — все видят актуальную версию и изменения синхронизируются автоматически.</p><p>Как Google Docs, только для API-тестов: один тестировщик добавил запрос, остальные сразу видят его в своём Pe4King.</p><p>В Pe4King эта функция в roadmap, в Postman уже реализована — это одно из ключевых преимуществ Postman для командной работы.</p>`},
+  'mock':{ title:'Mock-серверы', text:`<p>Mock-сервер имитирует настоящий API: вы обращаетесь к нему как к реальному серверу, а он возвращает заранее настроенные ответы.</p><p>Это нужно когда бэкенд ещё не готов, но фронтенд или интеграционные тесты уже нужно разрабатывать — mock позволяет работать параллельно.</p><p>Pe4King планирует создавать mock-серверы автоматически из OpenAPI-спецификации. В Postman mock-серверы уже есть, но требуют платной подписки для командного использования.</p>`},
+  'desktop':{ title:'Desktop-приложение', text:`<p>Desktop Pe4King — это обычная программа для Windows как Word или Chrome: скачал установщик, запустил, пользуешься — никакого VS Code или IntelliJ не нужно.</p><p>Приложение полностью автономно: не требует Rust, Python, Node.js или любых других дополнительных инструментов. Всё необходимое уже встроено в установщик.</p><p>Postman Desktop тоже является отдельным приложением и доступен для Windows, Mac и Linux. Pe4King Desktop пока поддерживает только Windows, Mac и Linux в разработке.</p>`},
+  'mac-linux':{ title:'Поддержка Mac и Linux', text:`<p>VS Code Extension и IntelliJ IDEA Plugin Pe4King уже работают на Mac и Linux — никаких дополнительных действий не нужно, устанавливаете из маркетплейса как обычно.</p><p>Standalone Desktop-приложение (без IDE) пока собирается только для Windows. Сборки для macOS и Linux запланированы, приоритет отдан macOS на Apple Silicon (M1/M2/M3).</p><p>Если ваша команда работает на Mac или Linux — уже сейчас можно пользоваться Pe4King через VS Code или IntelliJ, и это полноценный функционал без ограничений.</p>`}
+};
+
+const overlay = document.getElementById('popupOverlay');
+const popupTitle = document.getElementById('popupTitle');
+const popupText  = document.getElementById('popupText');
+const popupTag   = document.getElementById('popupTag');
+
+function openPopup(key) {
+  const data = explanations[key];
+  if (!data) return;
+  popupTag.textContent = 'Что это значит?';
+  popupTitle.textContent = data.title;
+  popupText.innerHTML = data.text;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closePopup() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('tr[data-key]').forEach(row => {
+  row.addEventListener('click', () => openPopup(row.dataset.key));
+});
+document.getElementById('popupClose').addEventListener('click', closePopup);
+overlay.addEventListener('click', e => { if (e.target === overlay) closePopup(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
+</script>
+</body>
+</html>
