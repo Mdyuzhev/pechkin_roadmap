@@ -71,7 +71,8 @@ export default {
   },
   template: `
     <div class="reviews-section" id="reviews">
-      <details class="reviews-details" id="reviewsDetails">
+      <!-- open атрибут добавлен — секция раскрыта по умолчанию -->
+      <details class="reviews-details" id="reviewsDetails" open>
         <summary class="reviews-summary">
           <div class="reviews-summary-left">
             <span class="reviews-summary-title">Отзывы</span>
@@ -85,7 +86,7 @@ export default {
         </summary>
 
         <div class="reviews-body">
-          <!-- List -->
+          <!-- Список отзывов -->
           <div>
             <div class="reviews-list">
               <div v-if="!reviews.length" class="reviews-empty">
@@ -108,7 +109,7 @@ export default {
             </div>
           </div>
 
-          <!-- Form -->
+          <!-- Форма -->
           <div class="reviews-form-wrap">
             <span class="reviews-form-label">Оставить отзыв</span>
 

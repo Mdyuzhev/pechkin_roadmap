@@ -4,7 +4,7 @@ import { ref } from 'vue'
 export default {
   name: 'CompareSection',
   setup() {
-    const popup = ref(null)  // { title, text } | null
+    const popup = ref(null)
 
     function openPopup(key) {
       popup.value = explanations[key] || null
@@ -13,7 +13,6 @@ export default {
       popup.value = null
     }
 
-    // Close on Esc
     window.addEventListener('keydown', e => {
       if (e.key === 'Escape') closePopup()
     })
@@ -25,14 +24,19 @@ export default {
       <div class="wrap">
         <div class="shead fi">
           <div class="slabel">Сравнение</div>
-          <div class="stitle">Pe4King vs Postman</div>
-          <div class="ssub">Pe4King генерирует тесты, Postman выполняет запросы. Вместе или вместо.</div>
+          <div class="stitle">Pe4King vs Postman vs APIDog</div>
+          <div class="ssub">Pe4King генерирует тесты, Postman и APIDog выполняют запросы. Вместе или вместо.</div>
           <div class="hint-click">↖ Нажмите на строку чтобы узнать подробнее</div>
         </div>
         <div class="twrap fi">
           <table>
             <thead>
-              <tr><th>Функция</th><th>Pe4King</th><th>Postman</th></tr>
+              <tr>
+                <th>Функция</th>
+                <th>Pe4King</th>
+                <th>Postman</th>
+                <th>APIDog</th>
+              </tr>
             </thead>
             <tbody>
               <tr
@@ -42,6 +46,8 @@ export default {
                 @click="openPopup(row.key)"
               >
                 <td>{{ row.label }}</td>
+
+                <!-- Pe4King -->
                 <td :class="{ pk: row.pe4only }">
                   <template v-if="row.pe4.type === 'yes'">
                     <span class="yes">✓</span>
@@ -54,6 +60,8 @@ export default {
                     &nbsp;<span class="soon">ROADMAP</span> {{ row.pe4.soon }}
                   </template>
                 </td>
+
+                <!-- Postman -->
                 <td>
                   <template v-if="row.post.type === 'yes'">
                     <span class="yes">✓</span>
@@ -61,6 +69,19 @@ export default {
                   </template>
                   <template v-else-if="row.post.type === 'no'"><span class="no">✗</span></template>
                   <template v-else-if="row.post.type === 'par'"><span class="par">{{ row.post.text }}</span></template>
+                  <template v-else-if="row.post.type === 'soon'"><span class="soon">ROADMAP</span></template>
+                </td>
+
+                <!-- APIDog -->
+                <td>
+                  <template v-if="row.apidog && row.apidog.type === 'yes'">
+                    <span class="yes">✓</span>
+                    <template v-if="row.apidog.text"> {{ row.apidog.text }}</template>
+                  </template>
+                  <template v-else-if="row.apidog && row.apidog.type === 'no'"><span class="no">✗</span></template>
+                  <template v-else-if="row.apidog && row.apidog.type === 'par'"><span class="par">{{ row.apidog.text }}</span></template>
+                  <template v-else-if="row.apidog && row.apidog.type === 'soon'"><span class="soon">ROADMAP</span></template>
+                  <template v-else><span class="no">✗</span></template>
                 </td>
               </tr>
             </tbody>
