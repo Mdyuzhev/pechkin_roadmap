@@ -118,6 +118,10 @@ export default {
       }
     }
 
+    function openImage(url) {
+      window.open(url, '_blank')
+    }
+
     return {
       reviews, loading, error,
       nameInput, textInput, rating, hovered,
@@ -126,7 +130,7 @@ export default {
       imageFile, imagePreview,
       starsHtml, formatDate,
       setHover, clearHover, setRating,
-      submit, onFileChange, removeImage,
+      submit, onFileChange, removeImage, openImage,
     }
   },
   template: `
@@ -173,7 +177,7 @@ export default {
                     class="review-image"
                     alt="Скриншот"
                     loading="lazy"
-                    @click="window.open('https://uplink.wh-lab.ru' + r.image_url, '_blank')"
+                    @click="openImage('https://uplink.wh-lab.ru' + r.image_url)"
                   />
                 </div>
               </div>
