@@ -1,15 +1,6 @@
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-const STORAGE_KEY = 'pe4king_reviews_v1'
-
-function loadReviews() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') }
-  catch { return [] }
-}
-
-function saveReviews(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
-}
+const API_BASE = 'https://uplink.wh-lab.ru/pe4king-api'
 
 function starsHtml(n) {
   return '★'.repeat(n) + '☆'.repeat(5 - n)
@@ -22,12 +13,35 @@ function formatDate(iso) {
 export default {
   name: 'ReviewsSection',
   setup() {
-    const reviews   = ref(loadReviews())
-    const nameInput = ref('')
-    const textInput = ref('')
-    const rating    = ref(0)
-    const hovered   = ref(0)
-    const success   = ref(false)
+    const reviews    = ref([])
+    const loading    = ref(true)
+    const error      = ref('')
+    const nameInput  = ref('')
+    const textInput  = ref('')
+    const rating     = ref(0)
+    const hovered    = ref(0)
+    const success    = ref(false)
+    const submitting = ref(false)
+    const imageFile  = ref(null)
+    const imagePreview = ref(null)
+
+    // Загрузка отзывов с сервера
+    async function fetchReviews() {
+      loading.value = true
+      error.value = ''
+      try {
+        const res = await fetch(`${API_BASE}/reviews`)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        reviews.value = await res.json()
+      } catch (e) {
+        error.value = 'Не удалось загрузить отзывы. Проверьте соединение.'
+        console.error('[Reviews]', e)
+      } finally {
+        loading.value = false
+      }
+    }
+
+    onMounted(fetchReviews)
 
     const avgRating = computed(() => {
       if (!reviews.value.length) return 0
@@ -35,43 +49,88 @@ export default {
     })
 
     const avgStars = computed(() => starsHtml(Math.round(+avgRating.value)))
-
-    const canSubmit = computed(() => rating.value > 0 && textInput.value.trim().length >= 3)
-
+    const canSubmit = computed(() => rating.value > 0 && textInput.value.trim().length >= 3 && !submitting.value)
     const displayedStars = computed(() => hovered.value || rating.value)
 
     function setHover(v) { hovered.value = v }
     function clearHover() { hovered.value = 0 }
     function setRating(v) { rating.value = v }
 
-    function submit() {
-      if (!canSubmit.value) return
-      const review = {
-        id: Date.now().toString(),
-        name: nameInput.value.trim() || 'Тестировщик',
-        rating: rating.value,
-        text: textInput.value.trim(),
-        date: new Date().toISOString()
+    // Обработка выбора файла
+    function onFileChange(event) {
+      const file = event.target.files[0]
+      if (!file) return
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Файл слишком большой. Максимум 5 МБ.')
+        return
       }
-      reviews.value.push(review)
-      saveReviews(reviews.value)
-      nameInput.value = ''
-      textInput.value = ''
-      rating.value = 0
-      success.value = true
-      setTimeout(() => success.value = false, 3000)
+      imageFile.value = file
+      const reader = new FileReader()
+      reader.onload = e => { imagePreview.value = e.target.result }
+      reader.readAsDataURL(file)
+    }
+
+    function removeImage() {
+      imageFile.value = null
+      imagePreview.value = null
+    }
+
+    async function submit() {
+      if (!canSubmit.value) return
+      submitting.value = true
+      error.value = ''
+
+      try {
+        const formData = new FormData()
+        formData.append('name',   nameInput.value.trim() || 'Тестировщик')
+        formData.append('rating', String(rating.value))
+        formData.append('text',   textInput.value.trim())
+        if (imageFile.value) {
+          formData.append('image', imageFile.value)
+        }
+
+        const res = await fetch(`${API_BASE}/reviews`, {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.error || `HTTP ${res.status}`)
+        }
+
+        const newReview = await res.json()
+        reviews.value = [newReview, ...reviews.value]
+
+        // Сброс формы
+        nameInput.value = ''
+        textInput.value = ''
+        rating.value = 0
+        imageFile.value = null
+        imagePreview.value = null
+        success.value = true
+        setTimeout(() => success.value = false, 3000)
+
+      } catch (e) {
+        error.value = `Ошибка: ${e.message}`
+      } finally {
+        submitting.value = false
+      }
     }
 
     return {
-      reviews, nameInput, textInput, rating, hovered,
+      reviews, loading, error,
+      nameInput, textInput, rating, hovered,
       avgRating, avgStars, canSubmit, displayedStars,
-      success, starsHtml, formatDate,
-      setHover, clearHover, setRating, submit
+      success, submitting,
+      imageFile, imagePreview,
+      starsHtml, formatDate,
+      setHover, clearHover, setRating,
+      submit, onFileChange, removeImage,
     }
   },
   template: `
     <div class="reviews-section" id="reviews">
-      <!-- open атрибут добавлен — секция раскрыта по умолчанию -->
       <details class="reviews-details" id="reviewsDetails" open>
         <summary class="reviews-summary">
           <div class="reviews-summary-left">
@@ -86,14 +145,16 @@ export default {
         </summary>
 
         <div class="reviews-body">
+
           <!-- Список отзывов -->
           <div>
             <div class="reviews-list">
-              <div v-if="!reviews.length" class="reviews-empty">
+              <div v-if="loading" class="reviews-empty">Загрузка отзывов...</div>
+              <div v-else-if="!reviews.length" class="reviews-empty">
                 Отзывов пока нет. Будьте первым!
               </div>
               <div
-                v-for="r in [...reviews].reverse()"
+                v-for="r in reviews"
                 :key="r.id"
                 class="review-card"
               >
@@ -101,10 +162,20 @@ export default {
                   <div class="review-author">{{ r.name }}</div>
                   <div class="review-meta">
                     <div class="review-stars">{{ starsHtml(r.rating) }}</div>
-                    <div class="review-date">{{ formatDate(r.date) }}</div>
+                    <div class="review-date">{{ formatDate(r.created_at) }}</div>
                   </div>
                 </div>
                 <div class="review-text">{{ r.text }}</div>
+                <!-- Прикреплённый скрин -->
+                <div v-if="r.image_url" class="review-image-wrap">
+                  <img
+                    :src="'https://uplink.wh-lab.ru' + r.image_url"
+                    class="review-image"
+                    alt="Скриншот"
+                    loading="lazy"
+                    @click="window.open('https://uplink.wh-lab.ru' + r.image_url, '_blank')"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -145,20 +216,40 @@ export default {
                 class="rv-input"
                 v-model="textInput"
                 placeholder="Расскажите о вашем опыте работы с Pe4King..."
-                maxlength="1000"
+                maxlength="2000"
               ></textarea>
             </div>
 
+            <!-- Загрузка скрина -->
+            <div class="rv-field">
+              <label>Скриншот <span style="color:var(--lo)">(необязательно, до 5 МБ)</span></label>
+              <div v-if="imagePreview" class="rv-preview-wrap">
+                <img :src="imagePreview" class="rv-preview-img" alt="preview" />
+                <button class="rv-preview-remove" @click="removeImage" title="Удалить">✕</button>
+              </div>
+              <label v-else class="rv-file-label">
+                <span>📎 Прикрепить скрин</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="rv-file-input"
+                  @change="onFileChange"
+                />
+              </label>
+            </div>
+
             <button class="rv-submit" :disabled="!canSubmit" @click="submit">
-              Отправить отзыв
+              {{ submitting ? 'Отправка...' : 'Отправить отзыв' }}
             </button>
 
             <div class="rv-success" v-if="success">✓ Отзыв добавлен, спасибо!</div>
+            <div class="rv-error" v-if="error">{{ error }}</div>
 
             <div class="rv-notice">
-              Отзывы сохраняются в этом браузере. Редактирование после отправки недоступно.
+              Отзывы хранятся на сервере и видны всем пользователям.
             </div>
           </div>
+
         </div>
       </details>
     </div>
